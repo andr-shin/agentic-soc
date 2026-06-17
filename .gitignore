@@ -1,0 +1,58 @@
+# Dependencies
+frontend/node_modules/
+
+# Build outputs
+frontend/dist/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment files (contains secrets)
+.env
+.env.local
+*.env
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+!*.env.example
+!frontend/.env.example
+
+# AWS credentials / secrets (never commit)
+.aws/
+credentials
+*.pem
+*.key
+
+# Python venv
+.venv/
+venv/
+
+# CDK
+cdk.out/
+cdk.context.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Playwright / local tooling artifacts
+.playwright-mcp/
+
+# Screenshots / scratch images (not part of source)
+*.jpeg
+
+# HTML documents (generated/exported)
+docs/*.html
+!docs/project-overview.html
+
+# Plans (session-specific, not for version control)
+docs/plans/
+
+# Temporary
+*.zip
+/tmp/

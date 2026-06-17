@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: |
+  AgenticSOC Target Account Role - Cross-Account Read-Only Access
+  이 템플릿을 타겟 계정에 배포하면 중앙 계정의 Steampipe가 이 계정의 리소스를 조회할 수 있습니다.
+
+Parameters:
+  CentralAccountId:
+    Type: String
+    Description: AgenticSOC 중앙 계정의 AWS Account ID (Steampipe가 실행되는 계정)
+    AllowedPattern: '^\d{12}$'
+    ConstraintDescription: AWS Account ID는 12자리 숫자입니다.
+
+  RoleName:
+    Type: String
+    Default: AgenticSOC-ReadOnly
+    Description: 생성할 IAM 역할 이름
+
+  CentralRoleName:
+    Type: String
+    Default: ''
+    Description: (선택) 중앙 계정에서 AssumeRole을 수행하는 역할 이름. 비워두면 중앙 계정의 모든 역할이 접근 가능.
+
+Conditions:
+  HasCentralRoleName: !Not [!Equals [!Ref CentralRoleName, '']]
+
+Resources:
+  SteampipeReadOnlyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      Description: !Sub 'AgenticSOC cross-account read-only access from account ${CentralAccountId}'
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !If
+                - HasCentralRoleName
+                - !Sub 'arn:aws:iam::${CentralAccountId}:role/${CentralRoleName}'
+                - !Sub 'arn:aws:iam::${CentralAccountId}:root'
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                aws:PrincipalTag/Project: agentic-soc
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ReadOnlyAccess
+      Tags:
+        - Key: Project
+          Value: agentic-soc
+        - Key: ManagedBy
+          Value: CloudFormation
+        - Key: CentralAccount
+          Value: !Ref CentralAccountId
+
+Outputs:
+  RoleArn:
+    Description: 타겟 계정의 Steampipe ReadOnly 역할 ARN (중앙 계정 설정에 사용)
+    Value: !GetAtt SteampipeReadOnlyRole.Arn
+
+  RoleName:
+    Description: 생성된 역할 이름
+    Value: !Ref SteampipeReadOnlyRole
+
+  SetupInstructions:
+    Description: 다음 단계
+    Value: !Sub |
+      이 역할 ARN을 중앙 계정의 AgenticSOC 스택 'TargetAccountIds' 파라미터에 추가하세요.
+      Role ARN: arn:aws:iam::${AWS::AccountId}:role/${RoleName}
+      Account ID: ${AWS::AccountId}

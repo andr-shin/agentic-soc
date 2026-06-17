@@ -1,0 +1,5 @@
+strands-agents
+bedrock-agentcore
+boto3
+psycopg2-binary==2.9.10
+aws-opentelemetry-distro>=0.10.0
