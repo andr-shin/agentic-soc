@@ -22,30 +22,7 @@ AWS 네이티브 보안 시그널과 Bedrock AgentCore, Strands Agents를 결합
 
 ## 아키텍처
 
-```
-브라우저 (React + CloudFront + Cognito)
-    |
-    +-- /api/* --> API Gateway --> Lambda (REST API)
-    |                              +- findings, tasks, logs, conversations, reports
-    |
-    +-- AgentCore Direct (SSE Streaming, JWT)
-         |
-    SOC Host Agent (Orchestrator, 2-Tier 분류 라우팅)
-         |
-         +-> Investigation Agent  (GuardDuty/SecurityHub finding, CloudTrail, VPC Flow, MITRE)
-         +-> Posture 분석 (Hunting) (Steampipe SQL — 리소스 '설정' 약점·공격경로)
-         +-> Threat Hunting Agent (로그 기반 '행위' 헌팅 — CloudTrail/DNS/VPC Flow, IOC)
-         +-> Log Query Agent      (CloudWatch Logs Insights, NL→LogsQL)
-         +-> Response Agent       (SOAR — 승인 게이트)
-         +-> Report Agent         (보안 리포트 합성)
-
-수집: GuardDuty/SecurityHub/Inspector (finding)
-      → EventBridge → SNS → event-processor Lambda → Aurora(findings, DynamoDB fallback)
-      (CloudTrail/VPC Flow/DNS는 finding이 아닌 로그 — Investigation·Log Query에서 조회)
-
-대응: Response Agent → propose_remediation → tasks(pending_approval)
-      → Task Board 분석가 승인 → SOAR Lambda(isolate/block/revoke, approved=true)
-```
+<img width="1291" height="629" alt="image" src="https://github.com/user-attachments/assets/1500697e-f933-4c2d-b798-13054dc183f5" />
 
 ## 빠른 시작
 
